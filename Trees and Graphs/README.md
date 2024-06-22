@@ -11,5 +11,8 @@ This repository contains problem sets related to trees and graphs for the Master
   - Finding Strongly Connected Components (SCC) and cycles in a graph
 
 ## Topics Covered in Problem Set 3
+  - Implementation of Union-Find data structure with rank compression
+  - Finding Strongly Connected Components (SCC) using Union-Find data structures
+  - Kruskal's Algorithm for finding Minimum Spanning Trees (MST)
 
 ## Topics Covered in Problem Set 4

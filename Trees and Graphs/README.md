@@ -16,3 +16,5 @@ This repository contains problem sets related to trees and graphs for the Master
   - Kruskal's Algorithm for finding Minimum Spanning Trees (MST)
 
 ## Topics Covered in Problem Set 4
+  - Given a maze as an image, we solve the shortest path problem using Dijkstra's Algorithm. The image is represented as a graph where each pixel of the image is a vertex and edges connect a pixel to its neighbor (opencv library was used for image processing)
+  - This implementation of Dijkstra's Algorithm was written in a way that it doesn't create an adjacency list/table. Instead, weights are updated as the alorithm progresses

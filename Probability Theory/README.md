@@ -9,3 +9,7 @@ This repository contains problem sets and ungraded labs related to probability t
 ## Topics Covered in Lab 2 & Assignment 2
 - Bayes' Theorem, Law of Total Probability
 - Independent & conditional probability
+
+## Topics Covered in Lab 3-4 & Assignment 3-4
+- Discrete and continuous random variables (Bernoulli, binomial, negative binomial, normal, uniform, poisson and exponential)
+- Calculating probability density functions or cumulative distribution functions of random variables

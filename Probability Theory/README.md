@@ -13,3 +13,9 @@ This repository contains problem sets and ungraded labs related to probability t
 ## Topics Covered in Lab 3-4 & Assignment 3-4
 - Discrete and continuous random variables (Bernoulli, binomial, negative binomial, normal, uniform, poisson and exponential)
 - Calculating probability density functions or cumulative distribution functions of random variables
+
+## Topics Covered in Assignment 5
+- The concept of joint distribution (multivariate cases)
+
+## Topics Covered in Lab 5 & Assignment 6
+- The Central Limit Theorem (CLT) and its applications such as characterizing the distribution of the mean and vairance of a large data set

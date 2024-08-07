@@ -3,9 +3,9 @@ This repository contains problem sets related to dynamic programming and greedy 
 
 ## Topics Covered in Problem Set 1
 
-
 ## Topics Covered in Problem Set 2
-
+- Longest Stable Subsequence using dynamic programming and memoization
+- Finding the 'targetSum' from a given list of integers using dynamic programming and memoization
 
 ## Topics Covered in Problem Set 3
 - Greedy algorithms for Makespan Scheduling

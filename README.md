@@ -5,4 +5,5 @@ Welcome to the Master's Studies repository! This repository contains a collectio
 ## Table of Contents (Courses)
 - Data Structures and Algorithms
 - Trees and Graphs
+- Dynamic Programming & Greedy Algorithms
 - Probability Theory

@@ -1,0 +1,175 @@
+---
+title: "NYPD Shooting Incidents Data Analysis"
+author: "Engin Deniz Dogu"
+date: "2024-09-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## NYPD Shooting Data
+#### Reading data...
+
+```{r read_data, echo=TRUE}
+nypd_shooting_data <- readr::read_csv("https://data.cityofnewyork.us/api/views/833y-fsy8/rows.csv?accessType=DOWNLOAD")
+```
+
+#### Data cleaning steps...
+
+```{r data_cleaning, echo=TRUE}
+# Date conversion
+nypd_shooting_data$OCCUR_DATE <- as.Date(nypd_shooting_data$OCCUR_DATE, "%m/%d/%Y")
+
+# Calculate total incidents in each BORO
+total_incidents_in_boro <- nypd_shooting_data |> dplyr::group_by(BORO) |> 
+  dplyr::summarize(cases=dplyr::n(),cases_per_thou = dplyr::n()/1000,
+                   deaths_per_thou=sum(STATISTICAL_MURDER_FLAG==TRUE)/1000)
+
+# Daily cases
+cases_and_deaths_daily <- nypd_shooting_data |> dplyr::group_by(OCCUR_DATE) |>
+  dplyr::summarize(cases=dplyr::n(),cases_per_thou = dplyr::n()/1000,
+                   deaths_per_thou=sum(STATISTICAL_MURDER_FLAG==TRUE)/1000)
+
+# Data Exploration (unique values)
+boro_uniq <- unique(nypd_shooting_data["BORO"])
+perp_race_uniq <- unique(nypd_shooting_data["PERP_RACE"])
+perp_sex_uniq <- unique(nypd_shooting_data["PERP_SEX"])
+perp_age_group_uniq <- unique(nypd_shooting_data["PERP_AGE_GROUP"])
+vic_race_uniq <- unique(nypd_shooting_data["VIC_RACE"])
+vic_sex_uniq <- unique(nypd_shooting_data["VIC_SEX"])
+vic_age_group_uniq <- unique(nypd_shooting_data["VIC_AGE_GROUP"])
+location_desc_uniq <- unique(nypd_shooting_data["LOCATION_DESC"])
+
+# Discovery & Factors
+boro_f <- c(unique(nypd_shooting_data$BORO))
+
+perp_race_f <- subset(perp_race_uniq,!is.na(perp_race_uniq$PERP_RACE) 
+                      & perp_race_uniq$PERP_RACE != "(null)")$PERP_RACE
+
+perp_sex_f <- subset(perp_sex_uniq,!is.na(perp_sex_uniq$PERP_SEX) 
+                      & perp_sex_uniq$PERP_SEX != "(null)")$PERP_SEX
+
+perp_age_group_uniq_f <- subset(perp_age_group_uniq,!is.na(perp_age_group_uniq$PERP_AGE_GROUP) 
+                      & perp_age_group_uniq$PERP_AGE_GROUP != "(null)"
+                      & perp_age_group_uniq$PERP_AGE_GROUP != "1020"
+                      & perp_age_group_uniq$PERP_AGE_GROUP != "940"
+                      & perp_age_group_uniq$PERP_AGE_GROUP != "224"
+                      & perp_age_group_uniq$PERP_AGE_GROUP != "1028"
+                      )$PERP_AGE_GROUP
+
+vic_race_uniq_f <- subset(vic_race_uniq,!is.na(vic_race_uniq$VIC_RACE) 
+                      & vic_race_uniq$VIC_RACE != "(null)")$VIC_RACE
+
+vic_sex_uniq_f <- subset(vic_sex_uniq,!is.na(vic_sex_uniq$VIC_SEX) 
+                      & vic_sex_uniq$VIC_SEX != "(null)")$VIC_SEX
+
+vic_age_group_uniq_f <- subset(vic_age_group_uniq,!is.na(vic_age_group_uniq$VIC_AGE_GROUP) 
+                      & vic_age_group_uniq$VIC_AGE_GROUP != "(null)"
+                      & vic_age_group_uniq$VIC_AGE_GROUP != "1022"
+                      )$VIC_AGE_GROUP
+
+location_desc_uniq_f <- subset(location_desc_uniq,!is.na(location_desc_uniq$LOCATION_DESC) 
+                      & location_desc_uniq$LOCATION_DESC != "(null)"
+                      )$LOCATION_DESC
+
+# Remove unwanted columns
+nypd_shooting_data <- subset(nypd_shooting_data,
+                             select=-c(Lon_Lat,X_COORD_CD,Y_COORD_CD,JURISDICTION_CODE,OCCUR_TIME))
+
+# Remove unwanted rows
+nypd_shooting_data <- subset(nypd_shooting_data,nypd_shooting_data$PERP_RACE %in% perp_race_f)
+nypd_shooting_data <- subset(nypd_shooting_data,nypd_shooting_data$PERP_SEX %in% perp_sex_f)
+nypd_shooting_data <- subset(nypd_shooting_data,nypd_shooting_data$PERP_AGE_GROUP %in% perp_age_group_uniq_f)
+nypd_shooting_data <- subset(nypd_shooting_data,nypd_shooting_data$VIC_RACE %in% vic_race_uniq_f)
+nypd_shooting_data <- subset(nypd_shooting_data,nypd_shooting_data$VIC_SEX %in% vic_sex_uniq_f)
+nypd_shooting_data <- subset(nypd_shooting_data,nypd_shooting_data$VIC_AGE_GROUP %in% vic_age_group_uniq_f)
+nypd_shooting_data <- subset(nypd_shooting_data,nypd_shooting_data$LOCATION_DESC %in% location_desc_uniq_f)
+
+# Summary and missing data check
+summary(nypd_shooting_data)
+```
+
+```{r analysis, echo=TRUE}
+shooting_totals <- nypd_shooting_data |> dplyr::group_by(BORO, OCCUR_DATE) |>
+  dplyr::summarize(cases=sum(INCIDENT_KEY), deaths=sum(STATISTICAL_MURDER_FLAG==TRUE))
+  
+shooting_totals <- subset(shooting_totals,deaths>0)
+```
+
+#### Total Cases by BORO
+
+```{r histogram, echo=TRUE}
+ggplot2::ggplot(nypd_shooting_data, ggplot2::aes(x=BORO,fill=BORO)) + ggplot2::geom_bar() + ggplot2::scale_fill_brewer(palette="Greens")
+```
+
+#### Comparison of Daily Deaths in MANHATTAN & BROOKLYN
+```{r dot plot, echo=TRUE}
+boro_selection <- "MANHATTAN"
+selection <- subset(shooting_totals, BORO==boro_selection)
+ggplot2::ggplot(selection, ggplot2::aes(x = OCCUR_DATE, y = deaths)) + ggplot2::geom_col()
+
+boro_selection <- "BROOKLYN"
+selection <- subset(shooting_totals, BORO==boro_selection)
+ggplot2::ggplot(selection, ggplot2::aes(x = OCCUR_DATE, y = deaths)) + ggplot2::geom_col()
+```
+
+#### Number of Cases in Staten Island by Location Type
+It seems that public housing, private housing and apartment buildings have the most shooting cases which might be interesting to look into.
+
+```{r loc, echo=TRUE}
+cases_by_location <- nypd_shooting_data |> dplyr::group_by(BORO,LOCATION_DESC) |> dplyr::summarize(n = dplyr::n())
+  
+boro_selection <- "STATEN ISLAND"
+selection <- subset(cases_by_location, BORO==boro_selection)
+ggplot2::ggplot(selection, ggplot2::aes(x = n, y = LOCATION_DESC)) + ggplot2::geom_col()
+```
+
+#### Modelling 1
+Deaths per Thousand by BORO (predicted values in red).
+Deaths per thousand is highly correlated with the number of cases.
+```{r linear_regression_1, echo=TRUE}
+model_1 <- lm(deaths_per_thou ~ cases_per_thou, data=total_incidents_in_boro)
+
+summary(model_1)
+
+total_incidents_in_boro_pred <- total_incidents_in_boro |> 
+  dplyr::mutate(pred=predict(model_1))
+
+total_incidents_in_boro_pred |> ggplot2::ggplot() +
+  ggplot2::geom_point(ggplot2::aes(x=cases_per_thou, y=deaths_per_thou), color="blue") +
+  ggplot2::geom_point(ggplot2::aes(x=cases_per_thou, y=pred),color="red")
+```
+
+#### Modelling 2
+Deaths per Thousand by Date (predicted values in red).
+It seems listing by date does not produce a good fit!
+```{r linear_regression_2, echo=TRUE}
+model_2 <- lm(deaths_per_thou ~ cases_per_thou, data=cases_and_deaths_daily)
+
+summary(model_2)
+
+cases_and_deaths_daily_pred <- cases_and_deaths_daily |> 
+  dplyr::mutate(pred=predict(model_2))
+
+cases_and_deaths_daily_pred |> ggplot2::ggplot() + 
+  ggplot2::geom_point(ggplot2::aes(x=cases_per_thou, y=deaths_per_thou), color="blue") +
+  ggplot2::geom_point(ggplot2::aes(x=cases_per_thou, y=pred),color="red")
+```
+
+#### Sources of Bias and Final Thoughts
+Potential sources of bias in NYPD shooting data:
+
+ - Gender
+ - Race
+ - Age
+ - Location
+  
+When I first looked at the I thought locations like bars/night clubs would have more shooting cases. However the seems to point at a different direction. It seems that most of the shootings are located in houses and apartments. My bias was that I considered houses to be safe. However, when I look at the analysis high numbers of shooting cases in houses and apartments actually make sense. Since these are private spaces (you wouldn't have cameras, police nearby etc.) it is possible to have a higher number of shooting cases related to these areas.
+
+#### Session Summary
+
+```{r session, echo=FALSE}
+sessionInfo()
+```

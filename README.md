@@ -13,6 +13,7 @@ Welcome to the Master's Studies repository! This repository contains a collectio
 
 #### Data Science Foundations: Statistical Inference
 - Probability Theory
+- Statistical Inference for Estimation in Data Science
 
 #### Data Mining Foundations & Practice
 - Data Mining Pipeline

@@ -5,6 +5,7 @@ Welcome to the Master's Studies repository! This repository contains a collectio
 ## Table of Contents (Courses)
 #### Vital Skills for Data Scientists
 - Data Science as a Field
+- Fundamentals of Data Visualization
 
 #### Data Structures & Algorithms
 - Data Structures and Algorithms

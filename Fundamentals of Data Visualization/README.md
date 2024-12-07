@@ -1,6 +1,8 @@
 # Labs and Assignments
 This repository contains ungraded labs and a final project related the Fundamentals of Data Visualization course for the Master of Science in Data Science program taught by University of Colorado, Boulder. Altair (Python) package was used to help with visualization tasks.
 
+Download and open the HTML file in your browser to view the jupyter notebook and visualizations.
+
 Learning objectives include:
 - Identify different techniques for mapping data to visual elements.
 - Describe trade-offs between different ways of mapping data to visual values.
